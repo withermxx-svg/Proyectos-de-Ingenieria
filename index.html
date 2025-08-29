@@ -22,6 +22,76 @@
             font-size: 2rem;
             color: #4299e1;
         }
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            position: relative;
+            background-color: #1a202c;
+            margin: auto;
+            padding: 20px;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        .close-btn {
+            color: #fff;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+        .project-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Style for next and prev buttons */
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -50px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        .prev:hover, .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -30,16 +100,16 @@
 
         <!-- Header Section -->
         <header class="text-center mb-12">
-            <h1 class="text-5xl md:text-6xl font-extrabold text-blue-400">Alan Alcudia</h1>
-            <h2 class="text-2xl md:text-3xl font-light mt-2">Portafolio de Servicios de Ingeniería</h2>
+            <h1 class="text-5xl md:text-6xl font-extrabold text-blue-400">Alan Alcudia Asencio</h1>
+            <h2 class="text-2xl md:text-3xl font-light mt-2">Servicios de Ingeniería</h2>
         </header>
 
         <!-- About Me Section -->
         <section class="bg-gray-800 rounded-xl p-6 md:p-8 mb-12 shadow-xl border-t border-blue-400">
             <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
                 <div class="flex-shrink-0">
-                    <!-- Placeholder image with a gear icon -->
-                    <img src="https://placehold.co/150x150/1c3d52/ffffff?text=⚙️" alt="Icono de Ingeniería" class="rounded-full w-28 h-28 md:w-36 md:h-36 object-cover border-4 border-blue-400">
+                    <!-- Image of Alan Alcudia -->
+                    <img src="https://i.ibb.co/cK7MYjMw/FOTO-DE-PERFIL.jpg" alt="FOTO DE PERFIL" class="rounded-full w-28 h-28 md:w-36 md:h-36 object-cover border-4 border-blue-400">
                 </div>
                 <div class="text-center md:text-left">
                     <h3 class="text-3xl font-bold mb-2 text-blue-300">Sobre Mí</h3>
@@ -62,7 +132,7 @@
                 <div class="bg-gray-800 rounded-xl p-6 text-center shadow-md hover:bg-gray-700 transition-colors duration-300">
                     <i class="fas fa-microchip icon mb-4"></i>
                     <h4 class="text-xl font-semibold mb-2">Control y Automatización</h4>
-                    <p class="text-sm text-gray-400">Conocimiento en programación de PLC en simuladores como LogixPro y Logo. Te ayudo con la lógica de control para procesos industriales.</p>
+                    <p class="text-sm text-gray-400">Conocimiento en programación de PLC en simuladores como LogixPro. Te ayudo con la lógica de control para procesos industriales.</p>
                 </div>
                 
                 <!-- Skill Card: Proteus -->
@@ -104,54 +174,52 @@
                 <div class="bg-gray-800 rounded-xl p-6 shadow-md border-b-4 border-blue-400">
                     <h4 class="text-xl font-bold mb-2 text-blue-300">Asistencia en PLC</h4>
                     <p class="text-sm text-gray-400">Te ayudo con la programación de controladores lógicos programables para proyectos de automatización en simuladores.</p>
-                    <div class="text-right mt-4">
-                        <span class="font-bold text-lg text-green-400">$15 - $30 por hora</span>
-                    </div>
                 </div>
                 <!-- Service Card: Proteus -->
                 <div class="bg-gray-800 rounded-xl p-6 shadow-md border-b-4 border-blue-400">
                     <h4 class="text-xl font-bold mb-2 text-blue-300">Diseño y Simulación de Circuitos</h4>
                     <p class="text-sm text-gray-400">Creación y prueba de circuitos electrónicos en Proteus para garantizar su correcto funcionamiento.</p>
-                    <div class="text-right mt-4">
-                        <span class="font-bold text-lg text-green-400">$20 - $50 por circuito</span>
-                    </div>
                 </div>
                 <!-- Service Card: 3D Models -->
                 <div class="bg-gray-800 rounded-xl p-6 shadow-md border-b-4 border-blue-400">
                     <h4 class="text-xl font-bold mb-2 text-blue-300">Diseño de Modelos 3D</h4>
                     <p class="text-sm text-gray-400">Modelado de piezas y ensambles para prototipos y fabricación.</p>
-                    <div class="text-right mt-4">
-                        <span class="font-bold text-lg text-green-400">$25 - $75 por modelo</span>
-                    </div>
                 </div>
                 <!-- Service Card: Math -->
                 <div class="bg-gray-800 rounded-xl p-6 shadow-md border-b-4 border-blue-400">
                     <h4 class="text-xl font-bold mb-2 text-blue-300">Ayuda en Tareas de Matemáticas</h4>
                     <p class="text-sm text-gray-400">Asesoría y resolución de problemas de cálculo, álgebra lineal y ecuaciones diferenciales.</p>
-                    <div class="text-right mt-4">
-                        <span class="font-bold text-lg text-green-400">$10 - $25 por sesión</span>
-                    </div>
                 </div>
                 <!-- Service Card: Documentation -->
                 <div class="bg-gray-800 rounded-xl p-6 shadow-md border-b-4 border-blue-400">
                     <h4 class="text-xl font-bold mb-2 text-blue-300">Redacción de Documentos</h4>
                     <p class="text-sm text-gray-400">Elaboro y doy formato a informes técnicos, reportes de laboratorio e investigaciones académicas.</p>
-                    <div class="text-right mt-4">
-                        <span class="font-bold text-lg text-green-400">$15 - $40 por documento</span>
-                    </div>
                 </div>
             </div>
         </section>
 
+        <!-- Content Creation Section -->
+        <section class="mb-12">
+            <h3 class="text-3xl font-bold text-center mb-6 text-blue-300">¿Buscas algo más apegado a las redes sociales?</h3>
+            <div class="bg-gray-800 rounded-xl p-6 md:p-8 text-center shadow-xl border-t border-blue-400">
+                <p class="text-lg leading-relaxed mb-4">
+                    Además de mi trabajo en ingeniería, también soy editor y creador de contenido. Si buscas un servicio para tus redes sociales, te invito a visitar mi portafolio dedicado.
+                </p>
+                <div class="mt-6">
+                    <a href="https://mangoladasportafolio.my.canva.site/" target="_blank" rel="noopener noreferrer" class="inline-block px-8 py-3 font-semibold text-white bg-blue-500 rounded-full shadow-md hover:bg-blue-600 transition-colors duration-300">
+                        Ver Portafolio de Creador de Contenido
+                    </a>
+                </div>
+            </div>
+        </section>
+        
         <!-- Contact Section -->
         <section class="text-center bg-gray-800 rounded-xl p-6 md:p-8 shadow-xl">
             <h3 class="text-3xl font-bold mb-4 text-blue-300">Contacto</h3>
-            <p class="text-lg mb-2"><strong>Correo Electrónico:</strong> alanalcasc@outlook.com</p>
+            <p class="text-lg mb-2"><strong>Correo Electrónico:</strong> alanalcudiaasencio@gmail.com</p>
+            <p class="text-lg mb-2"><strong>Número de Teléfono:</strong> +52 9371085174</p>
             <p class="text-lg mb-2"><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/alanalcasc/" class="text-blue-400 hover:text-blue-300 transition-colors duration-300">linkedin.com/in/alanalcasc/</a></p>
             <p class="text-lg"><strong>Portafolio de Creación de Contenido:</strong> <a href="https://mangoladasportafolio.my.canva.site/" class="text-blue-400 hover:text-blue-300 transition-colors duration-300">mangoladasportafolio.my.canva.site/</a></p>
-            <p class="mt-6 text-sm text-gray-500">
-                <i class="fas fa-heart text-red-500"></i> Diseño creado con Tailwind CSS.
-            </p>
         </section>
 
     </div>
