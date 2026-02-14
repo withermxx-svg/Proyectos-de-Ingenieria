@@ -35,7 +35,7 @@
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent;
             display: inline-block;
-            padding-right: 0.2em; /* Espacio extra para la itálica */
+            padding-right: 0.25em; /* Espacio extra para evitar corte en itálica */
         }
 
         .glass-card {
@@ -53,8 +53,14 @@
         }
 
         .modal-overlay {
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(12px);
+        }
+
+        .zoom-overlay {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 150;
         }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -71,14 +77,17 @@
 
         /* Corrección de clipping en títulos itálicos */
         .hero-title {
-            padding-right: 0.25em;
+            padding-right: 0.3em;
             display: block;
             width: fit-content;
         }
         
-        /* Asegurar que el contenedor del texto no corte los bordes */
         .text-content-wrapper {
             overflow: visible !important;
+        }
+        
+        .image-zoom-cursor {
+            cursor: zoom-in;
         }
     </style>
 </head>
@@ -140,8 +149,8 @@
                 desc: 'Desarrollo de scripts inteligentes y automatización avanzada con modelos LLM.', 
                 details: 'Python, integración de APIs de OpenAI y flujos de trabajo autónomos.', 
                 media: [
-                    'https://i.ibb.co/p68d9pf5/image.png',
-                    'https://i.ibb.co/JwnVXSjZ/image.png'
+                    'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800',
+                    'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&q=80&w=800'
                 ] 
             },
             { 
@@ -164,8 +173,23 @@
             { id: 8, category: 'Documentación', title: 'Redacción Técnica', icon: 'file-text', desc: 'Informes de ingeniería, manuales y reportes de investigación técnica.', details: 'Documentación rigurosa de procesos y manuales de operación.', media: [] }
         ];
 
+        // --- COMPONENTE DE ZOOM A PANTALLA COMPLETA ---
+        const FullScreenZoom = ({ src, onClose }) => (
+            <div className="fixed inset-0 zoom-overlay flex items-center justify-center p-4 cursor-zoom-out" onClick={onClose}>
+                <button className="absolute top-8 right-8 text-white bg-white/10 p-4 rounded-full hover:bg-white/20 transition-all">
+                    <Icon name="x" className="w-8 h-8" />
+                </button>
+                <img 
+                    src={src} 
+                    alt="Zoom" 
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in duration-300" 
+                />
+            </div>
+        );
+
         const ProjectModal = ({ project, onClose }) => {
             const [currentIndex, setCurrentIndex] = useState(0);
+            const [zoomImage, setZoomImage] = useState(null);
 
             if (!project) return null;
 
@@ -173,76 +197,87 @@
                 return url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm');
             };
 
-            const nextMedia = () => {
-                setCurrentIndex((prev) => (prev + 1) % project.media.length);
-            };
-
-            const prevMedia = () => {
-                setCurrentIndex((prev) => (prev - 1 + project.media.length) % project.media.length);
-            };
+            const nextMedia = () => setCurrentIndex((prev) => (prev + 1) % project.media.length);
+            const prevMedia = () => setCurrentIndex((prev) => (prev - 1 + project.media.length) % project.media.length);
 
             return (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 overflow-y-auto">
                     <div className="fixed inset-0 modal-overlay" onClick={onClose}></div>
-                    <div className="relative bg-[#0f172a] border border-white/10 w-full max-w-5xl rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in fade-in zoom-in duration-300">
+                    
+                    {/* Visualizador de Zoom */}
+                    {zoomImage && <FullScreenZoom src={zoomImage} onClose={() => setZoomImage(null)} />}
+
+                    <div className="relative bg-[#0f172a] border border-white/10 w-full max-w-6xl rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in fade-in zoom-in duration-300 h-auto md:h-[80vh]">
                         <button onClick={onClose} className="absolute top-6 right-6 z-20 w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors">
                             <Icon name="x" className="w-5 h-5" />
                         </button>
                         
-                        <div className="flex-1 bg-black/40 flex items-center justify-center p-8 min-h-[350px] relative group/gallery">
+                        {/* Contenedor de Media */}
+                        <div className="flex-1 bg-black/40 flex items-center justify-center p-4 md:p-8 relative group/gallery overflow-hidden">
                             {project.media && project.media.length > 0 ? (
                                 <React.Fragment>
                                     <div className="relative w-full h-full flex items-center justify-center">
                                         {isVideo(project.media[currentIndex]) ? (
-                                            <div className="video-container w-full max-w-2xl">
+                                            <div className="video-container w-full max-w-3xl">
                                                 <video key={project.media[currentIndex]} autoPlay loop muted playsInline controls>
                                                     <source src={project.media[currentIndex]} type="video/mp4" />
                                                 </video>
                                             </div>
                                         ) : (
-                                            <img src={project.media[currentIndex]} className="max-w-full max-h-[60vh] object-contain rounded-xl shadow-2xl" />
+                                            <div className="relative group/zoom overflow-hidden rounded-xl shadow-2xl">
+                                                <img 
+                                                    src={project.media[currentIndex]} 
+                                                    className="max-w-full max-h-[70vh] object-contain image-zoom-cursor transition-transform duration-500 group-hover/zoom:scale-105"
+                                                    onClick={() => setZoomImage(project.media[currentIndex])}
+                                                    title="Clic para ampliar"
+                                                />
+                                                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-lg opacity-0 group-hover/zoom:opacity-100 transition-opacity pointer-events-none">
+                                                    <Icon name="maximize-2" className="w-4 h-4 text-white" />
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
 
                                     {project.media.length > 1 && (
                                         <div className="absolute inset-x-4 flex justify-between items-center pointer-events-none">
-                                            <button onClick={(e) => {e.stopPropagation(); prevMedia();}} className="pointer-events-auto w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all">
-                                                <Icon name="chevron-left" />
+                                            <button onClick={(e) => {e.stopPropagation(); prevMedia();}} className="pointer-events-auto w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all">
+                                                <Icon name="chevron-left" className="w-6 h-6" />
                                             </button>
-                                            <button onClick={(e) => {e.stopPropagation(); nextMedia();}} className="pointer-events-auto w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all">
-                                                <Icon name="chevron-right" />
+                                            <button onClick={(e) => {e.stopPropagation(); nextMedia();}} className="pointer-events-auto w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all">
+                                                <Icon name="chevron-right" className="w-6 h-6" />
                                             </button>
                                         </div>
                                     )}
                                     
-                                    <div className="absolute bottom-4 bg-black/50 px-3 py-1 rounded-full text-[10px] font-bold text-white">
+                                    <div className="absolute bottom-4 bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold text-white tracking-widest uppercase">
                                         {currentIndex + 1} / {project.media.length}
                                     </div>
                                 </React.Fragment>
                             ) : (
-                                <div className="text-center opacity-40">
-                                    <Icon name="video" className="w-16 h-16 mx-auto mb-4" />
-                                    <p className="italic">Documentando evidencia técnica...</p>
+                                <div className="text-center opacity-40 py-20">
+                                    <Icon name="image-off" className="w-16 h-16 mx-auto mb-4" />
+                                    <p className="italic font-medium">Documentando evidencia técnica...</p>
                                 </div>
                             )}
                         </div>
                         
-                        <div className="w-full md:w-[400px] p-10 flex flex-col justify-between bg-gradient-to-b from-white/[0.03] to-transparent">
+                        {/* Contenedor de Información */}
+                        <div className="w-full md:w-[450px] p-10 flex flex-col justify-between bg-gradient-to-b from-white/[0.04] to-transparent border-t md:border-t-0 md:border-l border-white/5 overflow-y-auto">
                             <div>
                                 <span className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest uppercase mb-6">{project.category}</span>
-                                <h3 className="text-3xl font-black text-white mb-6 leading-tight">{project.title}</h3>
-                                <div className="space-y-6">
+                                <h3 className="text-4xl font-black text-white mb-6 leading-tight tracking-tight">{project.title}</h3>
+                                <div className="space-y-8">
                                     <div>
-                                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Descripción</h4>
+                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3">Descripción General</h4>
                                         <p className="text-slate-300 text-sm leading-relaxed">{project.desc}</p>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 italic">Detalles de Ingeniería</h4>
-                                        <p className="text-slate-400 text-sm italic leading-relaxed">{project.details}</p>
+                                        <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-3 italic">Especificaciones Técnicas</h4>
+                                        <p className="text-slate-400 text-sm italic leading-relaxed bg-white/[0.02] p-4 rounded-xl border border-white/5">{project.details}</p>
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={onClose} className="mt-10 w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 uppercase tracking-widest text-[10px]">Cerrar</button>
+                            <button onClick={onClose} className="mt-12 w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-black transition-all shadow-xl shadow-blue-600/30 uppercase tracking-[0.2em] text-[10px]">Cerrar Detalles</button>
                         </div>
                     </div>
                 </div>
@@ -282,7 +317,7 @@
                                     <span className="text-xs font-bold text-slate-100">Disponible</span>
                                 </div>
                             </div>
-                            <div className="hidden md:flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                            <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
                                 <a href="#" className="hover:text-blue-400 transition-colors">Inicio</a>
                                 <a href="#proyectos" className="hover:text-blue-400 transition-colors">Servicios</a>
                                 <a href="#contacto" className="hover:text-blue-400 transition-colors">Contacto</a>
@@ -291,60 +326,59 @@
                     </nav>
 
                     {/* Hero Section */}
-                    <header className="container mx-auto px-6 pt-48 pb-32 flex flex-col md:flex-row items-center gap-16">
+                    <header className="container mx-auto px-6 pt-52 pb-36 flex flex-col md:flex-row items-center gap-16">
                         <div className="flex-1 text-center md:text-left order-2 md:order-1 text-content-wrapper">
-                            <h1 className="hero-title text-7xl md:text-[100px] font-black text-white leading-[0.85] tracking-tighter mb-4 italic">
+                            <h1 className="hero-title text-8xl md:text-[110px] font-black text-white leading-[0.8] tracking-tighter mb-4 italic">
                                 Alan <br/><span className="text-gradient">Alcudia</span>
                             </h1>
                             
-                            {/* Etiqueta reubicada abajo del nombre */}
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest mb-10 uppercase">
+                            <div className="inline-flex items-center gap-2 px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-[0.2em] mb-12 uppercase">
                                 <Icon name="zap" className="w-3 h-3" /> Mecatrónico & Dev
                             </div>
 
-                            <p className="text-xl text-slate-400 max-w-xl mb-12 leading-relaxed border-l-4 border-blue-600 pl-8">
+                            <p className="text-xl text-slate-400 max-w-xl mb-14 leading-relaxed border-l-4 border-blue-600 pl-8 italic">
                                 "Diseñando soluciones técnicas, automatizando procesos con IA y brindando soporte de ingeniería especializado."
                             </p>
                             
-                            <div className="flex flex-wrap gap-5 justify-center md:justify-start">
-                                <a href="#proyectos" className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black transition-all shadow-xl shadow-blue-600/30 hover:scale-105 active:scale-95 uppercase tracking-widest text-xs">Ver Portafolio</a>
-                                <a href="#contacto" className="border border-white/10 bg-white/5 hover:bg-white/10 text-white px-10 py-4 rounded-2xl font-black transition-all uppercase tracking-widest text-xs">Contactar</a>
+                            <div className="flex flex-wrap gap-6 justify-center md:justify-start">
+                                <a href="#proyectos" className="bg-blue-600 hover:bg-blue-500 text-white px-12 py-4 rounded-2xl font-black transition-all shadow-xl shadow-blue-600/30 hover:scale-105 active:scale-95 uppercase tracking-[0.2em] text-[10px]">Portafolio</a>
+                                <a href="#contacto" className="border border-white/10 bg-white/5 hover:bg-white/10 text-white px-12 py-4 rounded-2xl font-black transition-all uppercase tracking-[0.2em] text-[10px]">Contactar</a>
                             </div>
                         </div>
                         <div className="relative order-1 md:order-2">
-                            <div className="absolute inset-0 bg-blue-600/20 blur-[120px] rounded-full animate-pulse"></div>
-                            <div className="relative z-10 p-3 bg-gradient-to-br from-white/10 to-transparent rounded-[3.5rem] border border-white/10">
-                                <img src="https://i.ibb.co/xKKQd3vx/PHOTO.png" alt="Alan Alcudia" className="w-72 h-72 md:w-96 md:h-96 object-cover rounded-[3rem] shadow-2xl transition-all duration-700 hover:scale-[1.02]" />
+                            <div className="absolute inset-0 bg-blue-600/30 blur-[130px] rounded-full animate-pulse"></div>
+                            <div className="relative z-10 p-4 bg-gradient-to-br from-white/15 to-transparent rounded-[4rem] border border-white/10 backdrop-blur-sm">
+                                <img src="https://i.ibb.co/xKKQd3vx/PHOTO.png" alt="Alan Alcudia" className="w-80 h-80 md:w-[450px] md:h-[450px] object-cover rounded-[3.5rem] shadow-2xl transition-all duration-700 hover:brightness-110" />
                             </div>
                         </div>
                     </header>
 
                     {/* Proyectos */}
-                    <section id="proyectos" className="container mx-auto px-6 py-32">
-                        <div className="flex flex-col lg:flex-row justify-between items-end mb-24 gap-12">
+                    <section id="proyectos" className="container mx-auto px-6 py-40">
+                        <div className="flex flex-col lg:flex-row justify-between items-end mb-28 gap-12">
                             <div className="max-w-2xl">
-                                <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.4em] mb-4 italic">Evidencia Interactiva</h2>
-                                <h3 className="text-5xl font-black text-white mb-6">Mis Trabajos</h3>
-                                <p className="text-slate-400 text-lg leading-relaxed">Haz clic para ver galerías de fotos y videos técnicos de cada área.</p>
+                                <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.5em] mb-6 italic">Evidencia Interactiva</h2>
+                                <h3 className="text-6xl font-black text-white mb-8 tracking-tight">Mis Trabajos</h3>
+                                <p className="text-slate-400 text-xl leading-relaxed">Haz clic en las tarjetas para abrir la galería. Dentro podrás **hacer clic en las imágenes para ampliarlas** al máximo.</p>
                             </div>
-                            <div className="flex flex-wrap gap-2 bg-white/5 p-2 rounded-2xl border border-white/10">
+                            <div className="flex flex-wrap gap-3 bg-white/5 p-2 rounded-2xl border border-white/10">
                                 {['Todos', 'Software', 'Mantenimiento', 'Diseño', 'Automatización'].map(c => (
-                                    <button key={c} onClick={()=>setFilter(c)} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter===c?'bg-blue-600 text-white shadow-lg shadow-blue-600/40':'hover:bg-white/10 text-slate-500'}`}>{c}</button>
+                                    <button key={c} onClick={()=>setFilter(c)} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${filter===c?'bg-blue-600 text-white shadow-lg shadow-blue-600/40':'hover:bg-white/10 text-slate-500'}`}>{c}</button>
                                 ))}
                             </div>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {filteredProjects.map(p => (
-                                <div key={p.id} onClick={()=>setSelectedProject(p)} className="glass-card p-8 rounded-[2.5rem] cursor-pointer group">
-                                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-transparent rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform">
-                                        <Icon name={p.icon} className="w-7 h-7" />
+                                <div key={p.id} onClick={()=>setSelectedProject(p)} className="glass-card p-10 rounded-[3rem] cursor-pointer group">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-transparent rounded-2xl flex items-center justify-center text-blue-400 mb-8 group-hover:scale-110 transition-transform">
+                                        <Icon name={p.icon} className="w-8 h-8" />
                                     </div>
-                                    <span className="text-[10px] uppercase font-black tracking-widest text-blue-500 mb-2 block opacity-70">{p.category}</span>
-                                    <h4 className="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">{p.title}</h4>
-                                    <p className="text-slate-400 text-sm mb-8 leading-relaxed line-clamp-2">{p.desc}</p>
-                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-white transition-colors">
-                                        Galería <Icon name="chevron-right" className="w-4 h-4" />
+                                    <span className="text-[10px] uppercase font-black tracking-[0.3em] text-blue-500 mb-4 block opacity-70 italic">{p.category}</span>
+                                    <h4 className="text-2xl font-black text-white mb-6 group-hover:text-blue-400 transition-colors leading-tight">{p.title}</h4>
+                                    <p className="text-slate-400 text-sm mb-10 leading-relaxed line-clamp-3">{p.desc}</p>
+                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-white transition-colors">
+                                        Explorar Galería <Icon name="chevron-right" className="w-4 h-4" />
                                     </div>
                                 </div>
                             ))}
@@ -352,27 +386,31 @@
                     </section>
 
                     {/* Contacto */}
-                    <footer id="contacto" className="container mx-auto px-6 py-32 text-center">
-                        <div className="glass-card p-16 rounded-[4rem] max-w-5xl mx-auto relative overflow-hidden">
-                            <h2 className="text-4xl font-black text-white mb-10 tracking-tight">Contacto Directo</h2>
-                            <div className="flex flex-col md:flex-row justify-center items-center gap-12 mb-16">
-                                <a href="mailto:alanalcudiaasencio@gmail.com" className="flex items-center gap-4 text-white group cursor-pointer">
-                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-all duration-300">
-                                        <Icon name="mail" className="w-6 h-6 text-blue-400 group-hover:text-white" />
+                    <footer id="contacto" className="container mx-auto px-6 py-40 text-center">
+                        <div className="glass-card p-20 rounded-[5rem] max-w-6xl mx-auto relative overflow-hidden">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-30"></div>
+                            <h2 className="text-5xl font-black text-white mb-14 tracking-tight">Hablemos hoy</h2>
+                            <div className="flex flex-col md:flex-row justify-center items-center gap-16 mb-20">
+                                <a href="mailto:alanalcudiaasencio@gmail.com" className="flex items-center gap-6 text-white group cursor-pointer">
+                                    <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 transition-all duration-500 shadow-xl group-hover:shadow-blue-600/30">
+                                        <Icon name="mail" className="w-7 h-7 text-blue-400 group-hover:text-white" />
                                     </div>
-                                    <span className="font-bold text-sm">alanalcudiaasencio@gmail.com</span>
+                                    <span className="font-bold text-lg group-hover:text-blue-400 transition-colors">alanalcudiaasencio@gmail.com</span>
                                 </a>
 
-                                <a href="https://wa.me/529371085174" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-white group cursor-pointer">
-                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-green-600 transition-all duration-300">
-                                        <Icon name="phone" className="w-6 h-6 text-blue-400 group-hover:text-white" />
+                                <a href="https://wa.me/529371085174" target="_blank" rel="noopener noreferrer" className="flex items-center gap-6 text-white group cursor-pointer">
+                                    <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center group-hover:bg-green-600 transition-all duration-500 shadow-xl group-hover:shadow-green-600/30">
+                                        <Icon name="phone" className="w-7 h-7 text-blue-400 group-hover:text-white" />
                                     </div>
-                                    <span className="font-bold text-sm">+52 937 108 5174</span>
+                                    <span className="font-bold text-lg group-hover:text-green-400 transition-colors">+52 937 108 5174</span>
                                 </a>
                             </div>
-                            <div className="flex justify-center gap-6">
-                                <a href="https://www.linkedin.com/in/alanalcasc/" target="_blank" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all"><Icon name="linkedin" /></a>
+                            <div className="flex justify-center gap-8">
+                                <a href="https://www.linkedin.com/in/alanalcasc/" target="_blank" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-500 border border-white/10 hover:border-transparent shadow-lg"><Icon name="linkedin" className="w-6 h-6" /></a>
                             </div>
+                        </div>
+                        <div className="mt-28 text-slate-700 text-[10px] font-black tracking-[0.6em] uppercase">
+                            © 2024 Alan Alcudia Asencio • Ingeniería & Desarrollo
                         </div>
                     </footer>
                 </div>
