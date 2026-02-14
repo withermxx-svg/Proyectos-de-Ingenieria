@@ -1,526 +1,331 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { 
-  Cpu, 
-  Layers, 
-  Zap, 
-  Box, 
-  PenTool, 
-  FileText, 
-  Search, 
-  Bot, 
-  Mail, 
-  Linkedin, 
-  Phone,
-  ChevronRight,
-  Monitor,
-  Settings,
-  Wrench,
-  Hammer,
-  ShieldCheck,
-  Rocket,
-  Target,
-  Smartphone,
-  Code2,
-  X,
-  ZoomIn,
-  ExternalLink
-} from 'lucide-react';
-
-// --- COMPONENTE DE FONDO CANVAS (SISTEMA DINÁMICO) ---
-const CanvasBackground = () => {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    const particles = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      size: Math.random() * 2 + 1
-    }));
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'rgba(100, 150, 255, 0.4)';
-      ctx.strokeStyle = 'rgba(100, 150, 255, 0.08)';
-
-      particles.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 140) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alan Alcudia | Ingeniería & Desarrollo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React, ReactDOM y Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #080c14; 
+            color: #e2e8f0;
+            overflow-x: hidden;
         }
-      });
-      animationFrameId = requestAnimationFrame(draw);
-    };
 
-    draw();
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
+        .canvas-container { 
+            position: fixed; 
+            inset: 0; 
+            pointer-events: none; 
+            z-index: 0; 
+            opacity: 0.6; 
+        }
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-50" />;
-};
+        .text-gradient { 
+            background: linear-gradient(to right, #60a5fa, #22d3ee, #3b82f6); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
 
-// --- DATOS DE PROYECTOS Y SERVICIOS ---
-// He añadido "images" y "details" para la nueva funcionalidad de galería
-const PROJECTS_DATA = [
-  { 
-    id: 1, 
-    category: 'Software', 
-    title: 'Programación con IA', 
-    icon: <Code2 />, 
-    desc: 'Desarrollo de scripts inteligentes y automatización de tareas mediante modelos de lenguaje y visión computacional.',
-    details: 'Implementación de Python, integración de APIs de OpenAI y automatización de flujos de trabajo con inteligencia artificial.',
-    images: ['https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800']
-  },
-  { 
-    id: 2, 
-    category: 'Software', 
-    title: 'Creación de Apps', 
-    icon: <Smartphone />, 
-    desc: 'Diseño y desarrollo de aplicaciones modernas con interfaces intuitivas y funcionales para móviles y web.',
-    details: 'Desarrollo Frontend con React/Tailwind y creación de aplicaciones móviles híbridas centradas en la experiencia del usuario.',
-    images: ['https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800']
-  },
-  { 
-    id: 3, 
-    category: 'Mantenimiento', 
-    title: 'Soporte Técnico PC', 
-    icon: <Monitor />, 
-    desc: 'Reparación, ensamblaje y diagnóstico de hardware de cómputo en entornos universitarios.',
-    details: 'Mantenimiento preventivo, cambio de componentes, limpieza física profunda y optimización de hardware de alto rendimiento.',
-    images: [] // Alan puede añadir sus fotos aquí
-  },
-  { 
-    id: 4, 
-    category: 'Automatización', 
-    title: 'Automatización e IA', 
-    icon: <Bot />, 
-    desc: 'Integración de sistemas autónomos y lógica programable para optimización de procesos técnicos.',
-    details: 'Control de procesos industriales simulados y aplicaciones de visión artificial para control de calidad.',
-    images: []
-  },
-  { 
-    id: 5, 
-    category: 'Mantenimiento', 
-    title: 'Servicio de Periféricos', 
-    icon: <Wrench />, 
-    desc: 'Mantenimiento preventivo y correctivo de impresoras y equipos de oficina.',
-    details: 'Reparación de sistemas de alimentación, limpieza de cabezales y configuración de periféricos de red.',
-    images: []
-  },
-  { 
-    id: 6, 
-    category: 'Diseño', 
-    title: 'Modelado 3D', 
-    icon: <Box />, 
-    desc: 'Diseño paramétrico de piezas mecánicas y ensamblajes virtuales en Autodesk Inventor.',
-    details: 'Creación de prototipos funcionales, análisis de esfuerzos y renderizado de piezas para manufactura.',
-    images: []
-  },
-  { 
-    id: 7, 
-    category: 'Diseño', 
-    title: 'Planos CAD 2D', 
-    icon: <PenTool />, 
-    desc: 'Elaboración de planos técnicos profesionales y diagramas eléctricos.',
-    details: 'Diseño arquitectónico básico e ingeniería de detalle para instalaciones eléctricas y mecánicas.',
-    images: []
-  },
-  { 
-    id: 8, 
-    category: 'Documentación', 
-    title: 'Redacción Técnica', 
-    icon: <FileText />, 
-    desc: 'Informes de ingeniería detallados, manuales y reportes de investigación.',
-    details: 'Redacción de manuales de operación, reportes de laboratorio académicos e investigación de viabilidad técnica.',
-    images: []
-  },
-];
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-// --- COMPONENTE DE MODAL / GALERÍA ---
-const ProjectModal = ({ project, onClose }) => {
-  if (!project) return null;
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 animate-in fade-in duration-300">
-      {/* Overlay */}
-      <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-md" 
-        onClick={onClose} 
-      />
-      
-      {/* Contenido del Modal */}
-      <div className="relative bg-[#0f172a] border border-white/10 w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row">
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 z-20 w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
 
-        {/* Lado Izquierdo: Galería/Imagen */}
-        <div className="flex-1 bg-black/40 flex items-center justify-center p-8 relative group overflow-hidden">
-          {project.images && project.images.length > 0 ? (
-            <div className="relative w-full h-full flex items-center justify-center group/img">
-               <img 
-                 src={project.images[0]} 
-                 alt={project.title}
-                 className="max-w-full max-h-[60vh] object-contain rounded-xl shadow-2xl transition-transform duration-700 group-hover/img:scale-110"
-               />
-               <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md p-2 rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity">
-                 <ZoomIn className="w-5 h-5 text-white" />
-               </div>
-            </div>
-          ) : (
-            <div className="text-center space-y-4 py-20">
-              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto">
-                <Search className="w-10 h-10 text-blue-500/50" />
-              </div>
-              <p className="text-slate-500 font-medium italic">Galería en proceso: Documentando evidencia técnica...</p>
-            </div>
-          )}
-        </div>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #080c14; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-        {/* Lado Derecho: Información */}
-        <div className="w-full md:w-[400px] p-10 flex flex-col justify-between bg-gradient-to-b from-white/[0.02] to-transparent">
-          <div>
-            <span className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest uppercase mb-6">
-              {project.category}
-            </span>
-            <h3 className="text-3xl font-black text-white mb-6 leading-tight">{project.title}</h3>
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <FileText className="w-3 h-3" /> Descripción
-                </h4>
-                <p className="text-slate-300 text-sm leading-relaxed">{project.desc}</p>
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <Zap className="w-3 h-3" /> Habilidades Aplicadas
-                </h4>
-                <p className="text-slate-400 text-sm leading-relaxed italic">{project.details}</p>
-              </div>
-            </div>
-          </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
 
-          <div className="mt-12">
-            <button 
-              onClick={onClose}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
-            >
-              Cerrar Vista
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+        // Adaptador de Iconos Lucide para React
+        const Icon = ({ name, className = "w-6 h-6" }) => {
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
 
-// --- COMPONENTE DE TARJETA ---
-const ProjectCard = ({ project, onClick }) => (
-  <div 
-    onClick={() => onClick(project)}
-    className="group cursor-pointer relative bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl transition-all duration-500 hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(59,130,246,0.2)]"
-  >
-    <div className="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-cyan-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-5 group-hover:scale-110 transition-transform">
-      {project.icon}
-    </div>
-    <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold mb-3 block">
-      {project.category}
-    </span>
-    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors">{project.title}</h3>
-    <p className="text-slate-400 text-sm mb-6 leading-relaxed line-clamp-2">
-      {project.desc}
-    </p>
-    <div className="inline-flex items-center text-xs text-white/70 hover:text-white font-bold gap-2 group/btn uppercase tracking-widest">
-      Ver Galería 
-      <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-    </div>
-  </div>
-);
+        // --- FONDO ANIMADO CANVAS ---
+        const CanvasBackground = () => {
+            const canvasRef = useRef(null);
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationId;
+                const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+                window.addEventListener('resize', resize);
+                resize();
+                const particles = Array.from({ length: 70 }, () => ({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, size: Math.random() * 2 + 1
+                }));
+                const draw = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+                    ctx.strokeStyle = 'rgba(59, 130, 246, 0.05)';
+                    particles.forEach((p, i) => {
+                        p.x += p.vx; p.y += p.vy;
+                        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const p2 = particles[j];
+                            const d = Math.hypot(p.x - p2.x, p.y - p2.y);
+                            if (d < 150) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
+                        }
+                    });
+                    animationId = requestAnimationFrame(draw);
+                };
+                draw();
+                return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animationId); };
+            }, []);
+            return <canvas ref={canvasRef} className="canvas-container" />;
+        };
 
-export default function App() {
-  const [filter, setFilter] = useState('Todos');
-  const [scrolled, setScrolled] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
+        // --- DATOS COMPLETOS DE PROYECTOS ---
+        const PROJECTS_DATA = [
+            { id: 1, category: 'Software', title: 'Programación con IA', icon: 'code-2', desc: 'Desarrollo de scripts inteligentes y automatización avanzada con modelos LLM.', details: 'Python, integración de APIs de OpenAI y flujos de trabajo autónomos.', images: ['https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800'] },
+            { id: 2, category: 'Software', title: 'Creación de Apps', icon: 'smartphone', desc: 'Interfaces modernas y aplicaciones web/móviles centradas en el usuario.', details: 'React, Tailwind CSS y desarrollo de apps híbridas.', images: ['https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800'] },
+            { id: 3, category: 'Mantenimiento', title: 'Soporte Técnico PC', icon: 'monitor', desc: 'Reparación y diagnóstico de hardware en entornos académicos y profesionales.', details: 'Cambio de componentes, limpieza profunda y optimización de rendimiento.', images: [] },
+            { id: 4, category: 'Automatización', title: 'Automatización e IA', icon: 'bot', desc: 'Sistemas autónomos y lógica programable para optimización industrial.', details: 'Control de procesos y aplicaciones de visión artificial.', images: [] },
+            { id: 5, category: 'Mantenimiento', title: 'Servicio de Periféricos', icon: 'wrench', desc: 'Mantenimiento preventivo de impresoras y equipos de oficina.', details: 'Reparación de sistemas de alimentación y configuración de red.', images: [] },
+            { id: 6, category: 'Diseño', title: 'Modelado 3D', icon: 'box', desc: 'Diseño paramétrico de piezas mecánicas en Autodesk Inventor.', details: 'Prototipado virtual y análisis de esfuerzos mecánicos.', images: [] },
+            { id: 7, category: 'Diseño', title: 'Planos CAD 2D', icon: 'pen-tool', desc: 'Elaboración de planos técnicos y diagramas eléctricos profesionales.', details: 'Diseño arquitectónico básico e ingeniería de detalle.', images: [] },
+            { id: 8, category: 'Documentación', title: 'Redacción Técnica', icon: 'file-text', desc: 'Informes de ingeniería, manuales y reportes de investigación técnica.', details: 'Documentación rigurosa de procesos y manuales de operación.', images: [] }
+        ];
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const filteredProjects = useMemo(() => {
-    if (filter === 'Todos') return PROJECTS_DATA;
-    return PROJECTS_DATA.filter(p => p.category === filter || (filter === 'Software' && (p.category === 'Software' || p.category === 'Automatización')));
-  }, [filter]);
-
-  return (
-    <div className="min-h-screen bg-[#080c14] text-slate-200 font-sans selection:bg-blue-500/40">
-      <CanvasBackground />
-
-      {/* Modal de Detalle */}
-      {selectedProject && (
-        <ProjectModal 
-          project={selectedProject} 
-          onClose={() => setSelectedProject(null)} 
-        />
-      )}
-
-      {/* Navegación - Perfil con Status Útil */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#080c14]/90 backdrop-blur-md py-4 border-b border-white/5' : 'bg-transparent py-8'}`}>
-        <div className="container mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
-            <div className="relative">
-               <div className="w-3 h-3 bg-green-500 rounded-full absolute -top-1 -right-1 border-2 border-[#080c14] animate-pulse"></div>
-               <Hammer className="w-5 h-5 text-blue-400" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] text-blue-400 font-black uppercase tracking-widest leading-none mb-1">Estado de Servicio</span>
-              <span className="text-xs font-bold text-slate-100">Disponible para Mantenimiento</span>
-            </div>
-          </div>
-          <div className="flex gap-8 text-sm font-bold uppercase tracking-widest">
-            <a href="#inicio" className="hover:text-blue-400 transition-colors">Inicio</a>
-            <a href="#proyectos" className="hover:text-blue-400 transition-colors">Servicios</a>
-            <a href="#contacto" className="hover:text-blue-400 transition-colors">Contacto</a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <header id="inicio" className="relative pt-44 pb-32 px-6">
-        <div className="container mx-auto flex flex-col md:flex-row items-center gap-16">
-          <div className="flex-1 text-center md:text-left order-2 md:order-1">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-black tracking-widest mb-8">
-              <Zap className="w-3 h-3" /> INGENIERO MECATRÓNICO
-            </div>
-            <h1 className="text-7xl md:text-[100px] font-black text-white mb-8 leading-[0.9] tracking-tighter">
-              Alan <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-600">Alcudia</span>
-            </h1>
-            <p className="text-xl text-slate-400 mb-10 max-w-xl mx-auto md:mx-0 font-medium leading-relaxed italic border-l-4 border-blue-600 pl-6">
-              "Diseñando soluciones técnicas, automatizando procesos con IA y brindando soporte de ingeniería especializado."
-            </p>
-            <div className="flex flex-wrap gap-5 justify-center md:justify-start">
-              <a href="#proyectos" className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black transition-all shadow-xl shadow-blue-600/30 hover:scale-105 active:scale-95">
-                VER PORTAFOLIO
-              </a>
-              <a href="#contacto" className="border border-white/10 bg-white/5 hover:bg-white/10 text-white px-10 py-4 rounded-2xl font-black transition-all hover:border-white/20">
-                SOLICITAR SERVICIO
-              </a>
-            </div>
-          </div>
-          <div className="relative order-1 md:order-2">
-            <div className="absolute inset-0 bg-blue-600/20 blur-[120px] rounded-full animate-pulse"></div>
-            <div className="relative z-10 p-3 bg-gradient-to-br from-white/10 to-transparent rounded-[3rem] border border-white/10 backdrop-blur-sm">
-              <img 
-                src="https://i.ibb.co/xKKQd3vx/PHOTO.png" 
-                alt="Alan Alcudia Asencio" 
-                className="w-72 h-72 md:w-96 md:h-96 object-cover rounded-[2.5rem] shadow-2xl hover:brightness-110 transition-all duration-700"
-                onError={(e) => { e.target.src = "https://via.placeholder.com/400x400?text=Alan+Alcudia"; }}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Propuesta de Valor */}
-      <section className="py-24 px-6 relative overflow-hidden">
-        <div className="container mx-auto">
-          <div className="bg-white/[0.03] border border-white/10 rounded-[3rem] p-12 md:p-16 backdrop-blur-sm relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
-             
-             <div className="max-w-4xl mx-auto text-center">
-                <h2 className="text-blue-500 font-black uppercase tracking-[0.3em] text-sm mb-6">Propuesta de Valor</h2>
-                <h3 className="text-3xl md:text-5xl font-black text-white mb-10 leading-tight">
-                  Soluciones Técnicas de Alta <span className="text-blue-400">Fiabilidad</span>
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-left">
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-400">
-                      <ShieldCheck className="w-6 h-6" />
+        // --- COMPONENTE MODAL (GALERÍA) ---
+        const ProjectModal = ({ project, onClose }) => {
+            if (!project) return null;
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 overflow-y-auto">
+                    <div className="fixed inset-0 modal-overlay" onClick={onClose}></div>
+                    <div className="relative bg-[#0f172a] border border-white/10 w-full max-w-5xl rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in fade-in zoom-in duration-300">
+                        <button onClick={onClose} className="absolute top-6 right-6 z-20 w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors">
+                            <Icon name="x" className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="flex-1 bg-black/40 flex items-center justify-center p-8 min-h-[300px]">
+                            {project.images && project.images.length > 0 ? (
+                                <img src={project.images[0]} className="max-w-full max-h-[60vh] object-contain rounded-xl shadow-2xl transition-transform hover:scale-105 duration-700" />
+                            ) : (
+                                <div className="text-center opacity-40">
+                                    <Icon name="search" className="w-16 h-16 mx-auto mb-4" />
+                                    <p className="italic">Documentando evidencia técnica...</p>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="w-full md:w-[400px] p-10 flex flex-col justify-between bg-gradient-to-b from-white/[0.03] to-transparent">
+                            <div>
+                                <span className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest uppercase mb-6">{project.category}</span>
+                                <h3 className="text-3xl font-black text-white mb-6 leading-tight">{project.title}</h3>
+                                <div className="space-y-6">
+                                    <div>
+                                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">Descripción</h4>
+                                        <p className="text-slate-300 text-sm leading-relaxed">{project.desc}</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2 text-blue-400">Habilidades Aplicadas</h4>
+                                        <p className="text-slate-400 text-sm italic leading-relaxed">{project.details}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="mt-10 w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20">Cerrar Galería</button>
+                        </div>
                     </div>
-                    <h4 className="text-lg font-bold text-white">Garantía Técnica</h4>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                      Diagnósticos precisos y reparaciones duraderas basadas en estándares de ingeniería.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-400">
-                      <Rocket className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-lg font-bold text-white">Software e IA</h4>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                      Especialista en desarrollo de apps y scripts de IA para optimizar cualquier flujo de trabajo.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-400">
-                      <Target className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-lg font-bold text-white">Atención Local</h4>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                      Servicio directo en entorno universitario con respuesta rápida y configuración personalizada.
-                    </p>
-                  </div>
                 </div>
-             </div>
-          </div>
-        </div>
-      </section>
+            );
+        };
 
-      {/* Servicios Rápidos */}
-      <section className="py-16 px-6 border-y border-white/5 bg-white/[0.01]">
-        <div className="container mx-auto text-center">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-            {[
-              { label: 'Apps & Software', icon: <Smartphone className="w-5 h-5" /> },
-              { label: 'IA & Automatización', icon: <Bot className="w-5 h-5" /> },
-              { label: 'Soporte PC', icon: <Monitor className="w-5 h-5" /> },
-              { label: 'Mecatrónica', icon: <Cpu className="w-5 h-5" /> }
-            ].map((item, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-4 group">
-                <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                  {item.icon}
+        // --- APLICACIÓN PRINCIPAL ---
+        const App = () => {
+            const [filter, setFilter] = useState('Todos');
+            const [selectedProject, setSelectedProject] = useState(null);
+            const [scrolled, setScrolled] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const filteredProjects = useMemo(() => 
+                filter === 'Todos' ? PROJECTS_DATA : PROJECTS_DATA.filter(p => p.category === filter)
+            , [filter]);
+
+            return (
+                <div className="relative z-10">
+                    <CanvasBackground />
+                    {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
+
+                    {/* Navegación */}
+                    <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#080c14]/90 backdrop-blur-md py-4 border-b border-white/5' : 'py-8'}`}>
+                        <div className="container mx-auto px-6 flex justify-between items-center">
+                            <div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+                                <div className="relative">
+                                    <div className="w-2.5 h-2.5 bg-green-500 rounded-full absolute -top-1 -right-1 border-2 border-[#080c14] animate-pulse"></div>
+                                    <Icon name="hammer" className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] text-blue-400 font-black uppercase tracking-widest leading-none mb-1">Estado</span>
+                                    <span className="text-xs font-bold text-slate-100">Disponible para Servicio</span>
+                                </div>
+                            </div>
+                            <div className="hidden md:flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <a href="#" className="hover:text-blue-400 transition-colors">Inicio</a>
+                                <a href="#proyectos" className="hover:text-blue-400 transition-colors">Servicios</a>
+                                <a href="#contacto" className="hover:text-blue-400 transition-colors">Contacto</a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Hero Section */}
+                    <header className="container mx-auto px-6 pt-48 pb-32 flex flex-col md:flex-row items-center gap-16">
+                        <div className="flex-1 text-center md:text-left order-2 md:order-1">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-black tracking-widest mb-8 uppercase">
+                                <Icon name="zap" className="w-3 h-3" /> Ingeniero Mecatrónico
+                            </div>
+                            <h1 className="text-7xl md:text-[100px] font-black text-white leading-[0.85] tracking-tighter mb-10 italic">
+                                Alan <br/><span className="text-gradient">Alcudia</span>
+                            </h1>
+                            <p className="text-xl text-slate-400 max-w-xl mb-12 leading-relaxed border-l-4 border-blue-600 pl-8">
+                                "Diseñando soluciones técnicas, automatizando procesos con IA y brindando soporte de ingeniería especializado."
+                            </p>
+                            <div className="flex flex-wrap gap-5 justify-center md:justify-start">
+                                <a href="#proyectos" className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black transition-all shadow-xl shadow-blue-600/30 hover:scale-105 active:scale-95 uppercase tracking-widest text-xs">Ver Portafolio</a>
+                                <a href="#contacto" className="border border-white/10 bg-white/5 hover:bg-white/10 text-white px-10 py-4 rounded-2xl font-black transition-all uppercase tracking-widest text-xs">Contactar</a>
+                            </div>
+                        </div>
+                        <div className="relative order-1 md:order-2">
+                            <div className="absolute inset-0 bg-blue-600/20 blur-[120px] rounded-full animate-pulse"></div>
+                            <div className="relative z-10 p-3 bg-gradient-to-br from-white/10 to-transparent rounded-[3.5rem] border border-white/10">
+                                <img src="https://i.ibb.co/xKKQd3vx/PHOTO.png" alt="Alan Alcudia" className="w-72 h-72 md:w-96 md:h-96 object-cover rounded-[3rem] shadow-2xl transition-all duration-700 hover:scale-[1.02]" />
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Presentación / Propuesta de Valor */}
+                    <section className="container mx-auto px-6 py-24">
+                        <div className="glass-card rounded-[4rem] p-12 md:p-20 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
+                            <div className="max-w-4xl mx-auto text-center">
+                                <h2 className="text-blue-500 font-black uppercase tracking-[0.4em] text-xs mb-6">Propuesta de Valor</h2>
+                                <h3 className="text-4xl md:text-5xl font-black text-white mb-16 tracking-tight">Soluciones Técnicas de Alta <span className="text-blue-400 italic">Fiabilidad</span></h3>
+                                <div className="grid md:grid-cols-3 gap-12 text-left">
+                                    {[{t:'Garantía Técnica', i:'shield-check', d:'Diagnósticos precisos basados en fundamentos de ingeniería mecatrónica.'},
+                                      {t:'Innovación con IA', i:'rocket', d:'Integración de software inteligente para automatizar flujos complejos.'},
+                                      {t:'Atención Local', i:'target', d:'Servicio presencial en entornos universitarios con respuesta técnica inmediata.'}].map(item => (
+                                        <div key={item.t} className="space-y-5 group">
+                                            <div className="w-14 h-14 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                                                <Icon name={item.i} className="w-7 h-7" />
+                                            </div>
+                                            <h4 className="text-xl font-bold text-white">{item.t}</h4>
+                                            <p className="text-slate-400 text-sm leading-relaxed">{item.d}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Proyectos e interactividad */}
+                    <section id="proyectos" className="container mx-auto px-6 py-32">
+                        <div className="flex flex-col lg:flex-row justify-between items-end mb-24 gap-12">
+                            <div className="max-w-2xl">
+                                <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.4em] mb-4 italic">Especialización</h2>
+                                <h3 className="text-5xl font-black text-white mb-6">Explora mis Trabajos</h3>
+                                <p className="text-slate-400 text-lg leading-relaxed">Haz clic en cualquier tarjeta para abrir la galería interactiva y ver detalles técnicos.</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 bg-white/5 p-2 rounded-2xl border border-white/10">
+                                {['Todos', 'Software', 'Mantenimiento', 'Diseño', 'Automatización'].map(c => (
+                                    <button key={c} onClick={()=>setFilter(c)} className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter===c?'bg-blue-600 text-white shadow-lg shadow-blue-600/40':'hover:bg-white/10 text-slate-500'}`}>{c}</button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {filteredProjects.map(p => (
+                                <div key={p.id} onClick={()=>setSelectedProject(p)} className="glass-card p-8 rounded-[2.5rem] cursor-pointer group">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-transparent rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform">
+                                        <Icon name={p.icon} className="w-7 h-7" />
+                                    </div>
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-blue-500 mb-2 block opacity-70">{p.category}</span>
+                                    <h4 className="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">{p.title}</h4>
+                                    <p className="text-slate-400 text-sm mb-8 leading-relaxed line-clamp-2">{p.desc}</p>
+                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-white transition-colors">
+                                        Ver Detalles <Icon name="chevron-right" className="w-4 h-4" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Contacto */}
+                    <footer id="contacto" className="container mx-auto px-6 py-32 text-center">
+                        <div className="glass-card p-16 rounded-[4rem] max-w-5xl mx-auto relative overflow-hidden">
+                            <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] pointer-events-none"></div>
+                            <h2 className="text-4xl font-black text-white mb-10 tracking-tight">¿Tienes un proyecto en mente?</h2>
+                            <p className="text-slate-400 text-lg mb-12 max-w-2xl mx-auto italic">"Desde la reparación de equipos hasta el desarrollo de software inteligente, mi compromiso es la excelencia técnica."</p>
+                            <div className="flex flex-col md:flex-row justify-center items-center gap-12 mb-16">
+                                <div className="flex items-center gap-4 text-white group">
+                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-blue-600/20 transition-all">
+                                        <Icon name="mail" className="w-6 h-6 text-blue-400" />
+                                    </div>
+                                    <span className="font-bold text-sm">alanalcudiaasencio@gmail.com</span>
+                                </div>
+                                <div className="flex items-center gap-4 text-white group">
+                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-blue-600/20 transition-all">
+                                        <Icon name="phone" className="w-6 h-6 text-blue-400" />
+                                    </div>
+                                    <span className="font-bold text-sm">+52 937 108 5174</span>
+                                </div>
+                            </div>
+                            <div className="flex justify-center gap-6">
+                                <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all"><Icon name="linkedin" className="w-5 h-5" /></a>
+                                <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all"><Icon name="bot" className="w-5 h-5" /></a>
+                            </div>
+                        </div>
+                        <div className="mt-24 text-slate-600 text-[10px] font-black tracking-[0.5em] uppercase">
+                            © 2024 Alan Alcudia Asencio • Ingeniería & Desarrollo
+                        </div>
+                    </footer>
                 </div>
-                <span className="text-[11px] text-slate-500 font-black uppercase tracking-[0.2em]">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            );
+        };
 
-      {/* Proyectos y Servicios con Filtros */}
-      <section id="proyectos" className="py-32 px-6">
-        <div className="container mx-auto">
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-10">
-            <div className="max-w-2xl">
-              <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.4em] mb-4">Portafolio Interactivo</h2>
-              <h3 className="text-4xl font-black text-white mb-6">Explora mis Trabajos</h3>
-              <p className="text-slate-400 text-lg leading-relaxed">
-                Haz clic en cualquier tarjeta para ver detalles técnicos y evidencia fotográfica de mis proyectos y servicios.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2 bg-white/5 p-2 rounded-2xl border border-white/10">
-              {['Todos', 'Software', 'Mantenimiento', 'Diseño', 'Configuración'].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setFilter(cat)}
-                  className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === cat ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/40' : 'hover:bg-white/10 text-slate-500'}`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {filteredProjects.map((project) => (
-              <ProjectCard 
-                key={project.id} 
-                project={project} 
-                onClick={(p) => setSelectedProject(p)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Sección Contacto */}
-      <section id="contacto" className="py-32 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <div className="relative bg-gradient-to-br from-[#0f172a] to-[#080c14] border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-600/5 blur-[120px] pointer-events-none"></div>
-            <div className="flex flex-col lg:flex-row">
-              <div className="flex-1 p-16">
-                <h2 className="text-4xl font-black text-white mb-8">Hablemos de tu Proyecto</h2>
-                <p className="text-slate-400 text-lg mb-12">
-                  ¿Necesitas un diagnóstico técnico, una App personalizada o una solución con IA? Estoy listo para ayudar.
-                </p>
-                <div className="space-y-8">
-                  <div className="flex items-center gap-6 group">
-                    <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-blue-500/50 transition-colors">
-                      <Mail className="w-6 h-6 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Correo Electrónico</p>
-                      <p className="text-lg font-bold text-white">alanalcudiaasencio@gmail.com</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6 group">
-                    <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-blue-500/50 transition-colors">
-                      <Phone className="w-6 h-6 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">WhatsApp / Teléfono</p>
-                      <p className="text-lg font-bold text-white">+52 937 108 5174</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 p-16 bg-white/[0.02] flex flex-col justify-center">
-                 <div className="p-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
-                    <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                      <Cpu className="w-64 h-64" />
-                    </div>
-                    <h3 className="text-3xl font-black mb-6 relative z-10">Servicio Especializado</h3>
-                    <p className="text-blue-100 text-lg mb-8 relative z-10 leading-relaxed font-medium">
-                      Calidad, honestidad técnica y soluciones de vanguardia en Hardware y Software.
-                    </p>
-                    <div className="flex flex-wrap gap-3 relative z-10">
-                       <span className="px-4 py-2 bg-white/10 backdrop-blur-md text-white text-[10px] font-black rounded-xl uppercase tracking-widest">IA & Apps</span>
-                       <span className="px-4 py-2 bg-white/10 backdrop-blur-md text-white text-[10px] font-black rounded-xl uppercase tracking-widest">Soporte</span>
-                       <span className="px-4 py-2 bg-white/10 backdrop-blur-md text-white text-[10px] font-black rounded-xl uppercase tracking-widest">Mecatrónica</span>
-                    </div>
-                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="py-20 border-t border-white/5 text-center">
-        <p className="text-slate-600 text-[10px] font-black tracking-[0.5em] uppercase">
-          © {new Date().getFullYear()} Alan Alcudia Asencio • Ingeniería & Desarrollo
-        </p>
-      </footer>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
