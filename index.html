@@ -35,8 +35,7 @@
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent;
             display: inline-block;
-            padding-right: 0.25em; /* Espacio extra para que no se corte la itálica */
-            margin-right: -0.25em; /* Compensa el espacio extra para no mover el diseño */
+            padding-right: 0.2em; /* Espacio extra para la itálica */
         }
 
         .glass-card {
@@ -72,8 +71,14 @@
 
         /* Corrección de clipping en títulos itálicos */
         .hero-title {
-            padding-right: 0.3em;
-            display: inline-block;
+            padding-right: 0.25em;
+            display: block;
+            width: fit-content;
+        }
+        
+        /* Asegurar que el contenedor del texto no corte los bordes */
+        .text-content-wrapper {
+            overflow: visible !important;
         }
     </style>
 </head>
@@ -287,16 +292,20 @@
 
                     {/* Hero Section */}
                     <header className="container mx-auto px-6 pt-48 pb-32 flex flex-col md:flex-row items-center gap-16">
-                        <div className="flex-1 text-center md:text-left order-2 md:order-1">
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-xs font-black tracking-widest mb-8 uppercase">
-                                <Icon name="zap" className="w-3 h-3" /> Mecatrónico & Dev
-                            </div>
-                            <h1 className="hero-title text-7xl md:text-[100px] font-black text-white leading-[0.85] tracking-tighter mb-10 italic">
+                        <div className="flex-1 text-center md:text-left order-2 md:order-1 text-content-wrapper">
+                            <h1 className="hero-title text-7xl md:text-[100px] font-black text-white leading-[0.85] tracking-tighter mb-4 italic">
                                 Alan <br/><span className="text-gradient">Alcudia</span>
                             </h1>
+                            
+                            {/* Etiqueta reubicada abajo del nombre */}
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest mb-10 uppercase">
+                                <Icon name="zap" className="w-3 h-3" /> Mecatrónico & Dev
+                            </div>
+
                             <p className="text-xl text-slate-400 max-w-xl mb-12 leading-relaxed border-l-4 border-blue-600 pl-8">
                                 "Diseñando soluciones técnicas, automatizando procesos con IA y brindando soporte de ingeniería especializado."
                             </p>
+                            
                             <div className="flex flex-wrap gap-5 justify-center md:justify-start">
                                 <a href="#proyectos" className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black transition-all shadow-xl shadow-blue-600/30 hover:scale-105 active:scale-95 uppercase tracking-widest text-xs">Ver Portafolio</a>
                                 <a href="#contacto" className="border border-white/10 bg-white/5 hover:bg-white/10 text-white px-10 py-4 rounded-2xl font-black transition-all uppercase tracking-widest text-xs">Contactar</a>
