@@ -67,7 +67,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
 
-        // Adaptador de Iconos Lucide para React
         const Icon = ({ name, className = "w-6 h-6" }) => {
             useEffect(() => {
                 if (window.lucide) window.lucide.createIcons();
@@ -75,7 +74,6 @@
             return <i data-lucide={name} className={className}></i>;
         };
 
-        // --- FONDO ANIMADO CANVAS ---
         const CanvasBackground = () => {
             const canvasRef = useRef(null);
             useEffect(() => {
@@ -112,7 +110,6 @@
             return <canvas ref={canvasRef} className="canvas-container" />;
         };
 
-        // --- DATOS COMPLETOS DE PROYECTOS ---
         const PROJECTS_DATA = [
             { id: 1, category: 'Software', title: 'Programación con IA', icon: 'code-2', desc: 'Desarrollo de scripts inteligentes y automatización avanzada con modelos LLM.', details: 'Python, integración de APIs de OpenAI y flujos de trabajo autónomos.', images: ['https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800'] },
             { id: 2, category: 'Software', title: 'Creación de Apps', icon: 'smartphone', desc: 'Interfaces modernas y aplicaciones web/móviles centradas en el usuario.', details: 'React, Tailwind CSS y desarrollo de apps híbridas.', images: ['https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800'] },
@@ -124,7 +121,6 @@
             { id: 8, category: 'Documentación', title: 'Redacción Técnica', icon: 'file-text', desc: 'Informes de ingeniería, manuales y reportes de investigación técnica.', details: 'Documentación rigurosa de procesos y manuales de operación.', images: [] }
         ];
 
-        // --- COMPONENTE MODAL (GALERÍA) ---
         const ProjectModal = ({ project, onClose }) => {
             if (!project) return null;
             return (
@@ -168,7 +164,6 @@
             );
         };
 
-        // --- APLICACIÓN PRINCIPAL ---
         const App = () => {
             const [filter, setFilter] = useState('Todos');
             const [selectedProject, setSelectedProject] = useState(null);
@@ -291,29 +286,39 @@
                         </div>
                     </section>
 
-                    {/* Contacto */}
+                    {/* Contacto Funcional */}
                     <footer id="contacto" className="container mx-auto px-6 py-32 text-center">
                         <div className="glass-card p-16 rounded-[4rem] max-w-5xl mx-auto relative overflow-hidden">
                             <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] pointer-events-none"></div>
                             <h2 className="text-4xl font-black text-white mb-10 tracking-tight">¿Tienes un proyecto en mente?</h2>
                             <p className="text-slate-400 text-lg mb-12 max-w-2xl mx-auto italic">"Desde la reparación de equipos hasta el desarrollo de software inteligente, mi compromiso es la excelencia técnica."</p>
+                            
                             <div className="flex flex-col md:flex-row justify-center items-center gap-12 mb-16">
-                                <div className="flex items-center gap-4 text-white group">
-                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-blue-600/20 transition-all">
-                                        <Icon name="mail" className="w-6 h-6 text-blue-400" />
+                                {/* Botón Correo */}
+                                <a href="mailto:alanalcudiaasencio@gmail.com" className="flex items-center gap-4 text-white group cursor-pointer">
+                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-all duration-300 shadow-lg group-hover:shadow-blue-600/20">
+                                        <Icon name="mail" className="w-6 h-6 text-blue-400 group-hover:text-white" />
                                     </div>
-                                    <span className="font-bold text-sm">alanalcudiaasencio@gmail.com</span>
-                                </div>
-                                <div className="flex items-center gap-4 text-white group">
-                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-blue-600/20 transition-all">
-                                        <Icon name="phone" className="w-6 h-6 text-blue-400" />
+                                    <span className="font-bold text-sm group-hover:text-blue-400 transition-colors">alanalcudiaasencio@gmail.com</span>
+                                </a>
+
+                                {/* Botón WhatsApp */}
+                                <a href="https://wa.me/529371085174" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-white group cursor-pointer">
+                                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-green-600 transition-all duration-300 shadow-lg group-hover:shadow-green-600/20">
+                                        <Icon name="phone" className="w-6 h-6 text-blue-400 group-hover:text-white" />
                                     </div>
-                                    <span className="font-bold text-sm">+52 937 108 5174</span>
-                                </div>
+                                    <span className="font-bold text-sm group-hover:text-green-400 transition-colors">+52 937 108 5174</span>
+                                </a>
                             </div>
+
                             <div className="flex justify-center gap-6">
-                                <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all"><Icon name="linkedin" className="w-5 h-5" /></a>
-                                <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all"><Icon name="bot" className="w-5 h-5" /></a>
+                                {/* Link LinkedIn Actualizado */}
+                                <a href="https://www.linkedin.com/in/alanalcasc/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-300">
+                                    <Icon name="linkedin" className="w-5 h-5 text-white" />
+                                </a>
+                                <a href="#" className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-300">
+                                    <Icon name="bot" className="w-5 h-5 text-white" />
+                                </a>
                             </div>
                         </div>
                         <div className="mt-24 text-slate-600 text-[10px] font-black tracking-[0.5em] uppercase">
