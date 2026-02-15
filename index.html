@@ -36,7 +36,7 @@
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent;
             display: inline-block;
-            padding-right: 0.35em; /* Previene corte de itálica */
+            padding-right: 0.4em; /* Previene corte de itálica en la 'a' final */
         }
 
         .glass-card {
@@ -78,6 +78,7 @@
         
         .image-zoom-cursor { cursor: zoom-in; }
 
+        /* Botones de contacto optimizados */
         .contact-btn {
             display: flex;
             align-items: center;
@@ -172,6 +173,52 @@
             { id: 8, category: 'Documentación', title: 'Redacción Técnica', icon: 'file-text', desc: 'Informes de ingeniería y reportes técnicos.', details: 'Manuales de operación y documentación rigurosa.', media: [] }
         ];
 
+        // --- DATOS DE CERTIFICADOS (Basados en tus capturas) ---
+        const CERTIFICATES_DATA = [
+            { 
+                id: 1, 
+                title: 'Desarrollo con IA', 
+                issuer: 'BIG School', 
+                media: ['https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1470'], 
+                desc: 'Curso de iniciación al desarrollo con Inteligencia Artificial. Jornadas formativas técnicas.' 
+            },
+            { 
+                id: 2, 
+                title: 'Advanced Innovation', 
+                issuer: 'ASU & UAG', 
+                media: ['https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1472'], 
+                desc: 'Certificación internacional en procesos de innovación avanzada y pensamiento estratégico.' 
+            },
+            { 
+                id: 3, 
+                title: 'Internet de las Cosas', 
+                issuer: 'Santander / MIT Professional Education', 
+                media: ['https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?q=80&w=1470'], 
+                desc: 'Especialización en sistemas IoT, sensores integrados y conectividad inteligente.' 
+            },
+            { 
+                id: 4, 
+                title: 'White Belt Lean Six Sigma', 
+                issuer: 'UAG (C.I.S.)', 
+                media: ['https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1470'], 
+                desc: 'Metodologías de mejora de procesos industriales y reducción de variabilidad.' 
+            },
+            { 
+                id: 5, 
+                title: 'Stress Management for Wellness', 
+                issuer: 'ASU / UAG', 
+                media: ['https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1470'], 
+                desc: 'Formación en habilidades blandas aplicadas al entorno profesional y gestión de alto rendimiento.' 
+            },
+            { 
+                id: 6, 
+                title: 'Certificación Técnica Extra', 
+                issuer: 'Alan Alcudia', 
+                media: [], 
+                desc: 'Próxima acreditación en proceso de documentación técnica.' 
+            }
+        ];
+
         const FullScreenZoom = ({ src, onClose }) => (
             <div className="fixed inset-0 zoom-overlay flex items-center justify-center p-2 cursor-zoom-out z-[200]" onClick={onClose}>
                 <button className="absolute top-4 right-4 text-white bg-white/10 p-3 rounded-full"><Icon name="x" /></button>
@@ -212,16 +259,19 @@
                                     )}
                                 </div>
                             ) : (
-                                <div className="text-center opacity-40"><Icon name="image-off" className="w-12 h-12 mx-auto mb-2" /><p className="text-xs italic">Documentando evidencia técnica...</p></div>
+                                <div className="text-center opacity-40"><Icon name="image-off" className="w-12 h-12 mx-auto mb-2" /><p className="text-xs italic">Evidencia técnica en proceso...</p></div>
                             )}
                         </div>
                         
                         <div className="w-full md:w-[400px] p-6 md:p-10 flex flex-col bg-gradient-to-b from-white/[0.04] to-transparent border-t md:border-t-0 md:border-l border-white/5 overflow-y-auto">
-                            <span className="inline-block w-fit px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[9px] font-black uppercase tracking-widest mb-4">{project.category}</span>
+                            <span className="inline-block w-fit px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[9px] font-black uppercase tracking-widest mb-4">{project.issuer ? 'Acreditación' : (project.category || 'Servicio')}</span>
                             <h3 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">{project.title}</h3>
                             <div className="space-y-6 mb-8 text-sm">
                                 <p className="text-slate-300 leading-relaxed">{project.desc}</p>
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5"><h4 className="text-[10px] font-black text-blue-400 uppercase mb-2">Especificaciones</h4><p className="text-slate-400 text-xs italic">{project.details}</p></div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <h4 className="text-[10px] font-black text-blue-400 uppercase mb-2">{project.issuer ? 'Emisor' : 'Especificaciones'}</h4>
+                                    <p className="text-slate-400 text-xs italic">{project.issuer || project.details}</p>
+                                </div>
                             </div>
                             <button onClick={onClose} className="mt-auto w-full bg-blue-600 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-500 transition-colors">Cerrar</button>
                         </div>
@@ -232,8 +282,8 @@
 
         const App = () => {
             const [filter, setFilter] = useState('Todos');
-            const [selectedProject, setSelectedProject] = useState(null);
             const [scrolled, setScrolled] = useState(false);
+            const [selectedProject, setSelectedProject] = useState(null);
             
             const myUrl = "https://alanalcudiaasencio.netlify.app/";
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(myUrl)}&bgcolor=ffffff&color=080c14&margin=10`;
@@ -258,9 +308,10 @@
                                 <div className="relative"><div className="w-2 h-2 bg-green-500 rounded-full absolute -top-0.5 -right-0.5 border border-[#080c14] animate-pulse"></div><Icon name="hammer" className="w-4 h-4 text-blue-400" /></div>
                                 <span className="text-[10px] font-bold text-slate-100 uppercase tracking-wider">Disponible</span>
                             </div>
-                            <div className="flex gap-5 md:gap-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                            <div className="flex gap-4 md:gap-8 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                                 <a href="#" className="hover:text-blue-400 transition-colors">Inicio</a>
                                 <a href="#proyectos" className="hover:text-blue-400 transition-colors">Servicios</a>
+                                <a href="#certificados" className="hover:text-blue-400 transition-colors">Certificados</a>
                                 <a href="#contacto" className="hover:text-blue-400 transition-colors">Contacto</a>
                             </div>
                         </div>
@@ -310,7 +361,41 @@
                         </div>
                     </section>
 
-                    {/* Footer y Contacto Directo */}
+                    {/* Certificaciones (Actualizada con datos reales) */}
+                    <section id="certificados" className="container mx-auto px-6 py-20 md:py-40 border-y border-white/5">
+                        <div className="text-center mb-20">
+                            <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.4em] mb-4">Acreditaciones</h2>
+                            <h3 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">Certificados Profesionales</h3>
+                            <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto italic">"Validando conocimientos en IA, IoT, Mejora de Procesos e Innovación Internacional."</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {CERTIFICATES_DATA.map(cert => (
+                                <div key={cert.id} onClick={() => setSelectedProject(cert)} className="glass-card overflow-hidden rounded-[2.5rem] cursor-pointer group relative">
+                                    <div className="aspect-video overflow-hidden relative">
+                                        {cert.media.length > 0 ? (
+                                            <img src={cert.media[0]} alt={cert.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                        ) : (
+                                            <div className="w-full h-full bg-slate-900 flex items-center justify-center"><Icon name="file-text" className="text-slate-700 w-12 h-12" /></div>
+                                        )}
+                                        <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                            <div className="bg-white text-blue-600 p-4 rounded-full shadow-2xl scale-75 group-hover:scale-100 transition-transform"><Icon name="zoom-in" /></div>
+                                        </div>
+                                    </div>
+                                    <div className="p-8">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                            <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{cert.issuer}</p>
+                                        </div>
+                                        <h4 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">{cert.title}</h4>
+                                        <p className="text-slate-400 text-xs leading-relaxed line-clamp-2">{cert.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Footer y Contacto */}
                     <footer id="contacto" className="container mx-auto px-4 sm:px-6 py-20 md:py-40">
                         <div className="glass-card p-8 md:p-20 rounded-[3rem] md:rounded-[5rem] max-w-6xl mx-auto relative overflow-hidden">
                             <div className="flex flex-col lg:flex-row items-center gap-12 md:gap-16">
