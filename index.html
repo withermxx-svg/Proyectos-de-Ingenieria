@@ -6,7 +6,7 @@
     <title>Alan Alcudia | Ingeniería & Desarrollo</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React, ReactDOM y Babel para que funcione en cualquier navegador -->
+    <!-- React, ReactDOM y Babel para ejecución directa -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -79,6 +79,15 @@
             transform: translateY(-4px);
             border-color: rgba(59, 130, 246, 0.4);
         }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -87,13 +96,11 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- COMPONENTE ICONO ---
         const Icon = ({ name, className = "w-6 h-6" }) => {
             useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name} className={className}></i>;
         };
 
-        // --- FONDO ANIMADO ---
         const CanvasBackground = () => {
             const canvasRef = useRef(null);
             useEffect(() => {
@@ -131,7 +138,7 @@
                 category: 'Software & IA', 
                 title: 'Desarrollo de Apps con IA', 
                 media: [
-                    { url: 'https://i.ibb.co/Tx4n1KGW/GATO.png', label: 'Interfaz de menu de opciones' },
+                    { url: 'https://i.ibb.co/Tx4n1KGW/GATO.png', label: 'Interfaz de menú de opciones' },
                     { url: 'https://i.ibb.co/1ttrY0g5/GATO1.png', label: 'Interfaz principal del juego' }
                 ],
                 description: 'Programación: Creación de interfaces modernas integrando modelos de lenguaje (IA) para el desarrollo de aplicaciones de entretenimiento o de productividad.'
@@ -141,9 +148,9 @@
                 category: 'Soporte Técnico PC', 
                 title: 'Mantenimiento de Hardware', 
                 media: [
-                    { url: 'https://i.ibb.co/XxkWC5R5/CAMBIO-DE-DISCO-A-SSD.jpg', label: 'Actualización a unidad SSD' },
-                    { url: 'https://i.ibb.co/fztHvVdg/EQUIPO-SUCIO-ARANZA.jpg', label: 'Limpieza profunda preventiva(antes)' },
-                    { url: 'https://i.ibb.co/r2dvVYgq/EQUIPO-LIMPIO.jpg', label: 'Limpieza profunda preventiva(despues)' },
+                    { url: 'https://i.ibb.co/XxkWC5R5/CAMBIO-DE-DISCO-A-SSD.jpg', label: 'Actualización a unidad SSD para alta velocidad' },
+                    { url: 'https://i.ibb.co/fztHvVdg/EQUIPO-SUCIO-ARANZA.jpg', label: 'Limpieza profunda preventiva (Estado Inicial)' },
+                    { url: 'https://i.ibb.co/r2dvVYgq/EQUIPO-LIMPIO.jpg', label: 'Limpieza profunda preventiva (Resultado Final)' }
                 ],
                 description: 'Optimización de equipos lentos y reparaciones preventivas profundas para prolongar la vida útil del hardware.'
             },
@@ -153,20 +160,48 @@
                 title: 'Servicio JetPro Profesional', 
                 media: [
                     { url: 'https://i.ibb.co/TxNTDW8V/COPIADORA-JETPRO.jpg', label: 'Revisión de mecanismos y funcionamiento general' },
-                    { url: 'https://i.ibb.co/gFQn26RT/COPIADORA-JETPRO1.jpg', label: 'Remplazo de solenoides pegajosos' },
-                    { url: 'https://i.ibb.co/WvhdwkC8/COPIADORA-JETPRO2.jpg', label: 'Cambio de piezas y mantenimiento' },
+                    { url: 'https://i.ibb.co/gFQn26RT/COPIADORA-JETPRO1.jpg', label: 'Reemplazo de solenoides pegajosos' },
+                    { url: 'https://i.ibb.co/WvhdwkC8/COPIADORA-JETPRO2.jpg', label: 'Cambio de piezas y mantenimiento correctivo' }
                 ],
                 description: 'Mantenimiento especializado de equipos de impresión y multifuncionales de alta gama.'
+            },
+            { 
+                id: '3d-1', 
+                category: 'Ingeniería', 
+                title: 'Modelado 3D Profesional', 
+                media: [
+                    { url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800', label: 'Próximamente: Evidencias de diseño mecánico' }
+                ],
+                description: 'Diseño paramétrico y prototipado virtual para soluciones industriales.'
             }
         ];
 
+        // --- DATOS DE CERTIFICADOS REALES ---
         const CERTIFICATES_DATA = [
-            { id: 1, title: 'Internet de las Cosas', issuer: 'MIT / Santander', media: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?q=80&w=800', desc: 'Sistemas inteligentes IoT.' },
-            { id: 2, title: 'Desarrollo con IA', issuer: 'BIG School', media: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800', desc: 'Fundamentos de IA y agentes.' },
-            { id: 3, title: 'Lean Six Sigma', issuer: 'UAG', media: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800', desc: 'Mejora continua.' }
+            { 
+                id: 'c1', 
+                title: 'Desarrollo con IA', 
+                issuer: 'BIG School', 
+                url: 'https://i.ibb.co/ZpLPPftm/Alan-alanalcudiaasencio@gmail-com-page-0001.jpg', 
+                desc: 'Curso de Iniciación al Desarrollo con IA: Jornadas formativas técnicas.' 
+            },
+            { 
+                id: 'c2', 
+                title: 'Lean Six Sigma White Belt', 
+                issuer: 'UAG', 
+                url: 'https://i.ibb.co/zV1D7873/Certificado-ALAN-ALCUDIA-ASENCIO-page-0001.jpg', 
+                desc: 'Metodologías para la optimización de procesos y mejora continua.' 
+            },
+            { 
+                id: 'c3', 
+                title: 'Internet de las Cosas (IoT)', 
+                issuer: 'Santander / MIT Professional Ed.', 
+                url: 'https://i.ibb.co/yB7WHdb1/CERTIFICADO-DE-FINALIZACION-DE-CURSO-IOT-ALAN-ALCUDIA-ASENCIO-page-0001.jpg', 
+                desc: 'Especialización en sistemas inteligentes y conectividad avanzada.' 
+            }
         ];
 
-        // --- MODAL CON NAVEGACIÓN ENTRE IMÁGENES ---
+        // --- MODAL CON NAVEGACIÓN ---
         const ProjectModal = ({ project, onClose }) => {
             const [index, setIndex] = useState(0);
             if (!project) return null;
@@ -193,16 +228,16 @@
                         
                         <div className="p-8 md:p-10 bg-gradient-to-b from-white/[0.04] to-transparent border-t border-white/5">
                             <div className="flex justify-between items-center mb-6">
-                                <span className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black uppercase tracking-widest">{project.category}</span>
+                                <span className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black uppercase tracking-widest leading-none">{project.category}</span>
                                 {project.media.length > 1 && <span className="text-[10px] font-black text-slate-500">{index + 1} / {project.media.length}</span>}
                             </div>
-                            <h3 className="text-3xl font-black text-white mb-6 leading-tight">{project.title}</h3>
+                            <h3 className="text-3xl font-black text-white mb-6 leading-tight tracking-tight">{project.title}</h3>
                             
                             <div className="p-5 bg-white/5 rounded-2xl border border-white/5 mb-6">
-                                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2 italic">Descripción de esta captura:</h4>
+                                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2 italic leading-none">Descripción de esta captura:</h4>
                                 <p className="text-slate-200 text-lg leading-relaxed font-bold italic">"{project.media[index].label}"</p>
                             </div>
-                            <p className="text-slate-400 text-sm">{project.description}</p>
+                            <p className="text-slate-400 text-sm leading-relaxed">{project.description}</p>
                         </div>
                     </div>
                 </div>
@@ -234,20 +269,21 @@
                             <div className="flex gap-8">
                                 <a href="#" className="hover:text-blue-400 transition-colors">Inicio</a>
                                 <a href="#trabajos" className="hover:text-blue-400 transition-colors">Evidencia</a>
+                                <a href="#certificados" className="hover:text-blue-400 transition-colors">Certificados</a>
                                 <a href="#contacto" className="hover:text-blue-400 transition-colors">Contacto</a>
                             </div>
                         </div>
                     </nav>
 
-                    <header className="container mx-auto px-6 pt-44 pb-24 md:pt-52 md:pb-36 flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                    <header className="container mx-auto px-6 pt-44 pb-24 md:pt-52 md:pb-36 flex flex-col md:flex-row items-center gap-16">
                         <div className="flex-1 text-center md:text-left order-2 md:order-1 fade-in-up">
-                            <h1 className="hero-title text-6xl sm:text-7xl md:text-[100px] font-black text-white tracking-tighter mb-4 italic leading-none">
+                            <h1 className="hero-title text-6xl sm:text-7xl md:text-[100px] font-black text-white tracking-tighter mb-4 italic mx-auto md:mx-0 leading-none">
                                 Alan <br/><span className="text-gradient">Alcudia</span>
                             </h1>
-                            <div className="inline-flex items-center gap-2 px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest mb-10 uppercase">Mecatrónico & Dev</div>
-                            <p className="text-lg md:text-2xl text-slate-400 max-w-xl mb-12 leading-relaxed border-l-4 border-blue-600 pl-6 italic">"Soluciones técnicas integrales, automatización con IA y soporte especializado de ingeniería."</p>
+                            <div className="inline-flex items-center gap-2 px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-[10px] font-black tracking-widest mb-10 uppercase">Ingeniero Mecatrónico & Dev</div>
+                            <p className="text-lg md:text-2xl text-slate-400 max-w-xl mb-12 leading-relaxed border-l-4 border-blue-600 pl-6 italic">"Soluciones técnicas integrales, desarrollo de software con IA y soporte especializado de ingeniería."</p>
                             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                                <a href="#trabajos" className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/30">Ver Evidencia</a>
+                                <a href="#trabajos" className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:scale-105 transition-transform">Ver Evidencia</a>
                                 <a href="https://wa.me/529371085174" className="bg-white/5 border border-white/10 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">WhatsApp</a>
                             </div>
                         </div>
@@ -267,7 +303,7 @@
                                 { t: 'Diseño 3D', i: 'box' }
                             ].map((s, idx) => (
                                 <div key={idx} className="glass-card p-8 rounded-[2.5rem] flex flex-col items-center text-center group">
-                                    <div className="text-blue-400 mb-6 group-hover:scale-110 transition-transform"><Icon name={s.i} /></div>
+                                    <div className="text-blue-400 mb-6 group-hover:scale-110 transition-transform"><Icon name={s.i} className="w-8 h-8" /></div>
                                     <h4 className="text-lg font-black text-white uppercase tracking-tight">{s.t}</h4>
                                 </div>
                             ))}
@@ -278,15 +314,16 @@
                     <section id="trabajos" className="container mx-auto px-6 py-24 bg-white/[0.01]">
                         <div className="max-w-2xl mb-16 text-center md:text-left">
                             <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.5em] mb-4 italic">Evidencia Visual</h2>
-                            <h3 className="text-4xl md:text-6xl font-black text-white mb-6">Proyectos Recientes</h3>
+                            <h3 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">Proyectos Recientes</h3>
+                            <p className="text-slate-400 text-base md:text-lg italic">Haz clic en cualquier imagen para leer el detalle técnico y la secuencia del trabajo realizado.</p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {PROJECTS_DATA.map(p => (
                                 <div key={p.id} onClick={() => setSelectedProject(p)} className="glass-card group relative aspect-[4/3] overflow-hidden rounded-[2.5rem] cursor-pointer">
                                     <img src={p.media[0].url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:brightness-50" />
                                     <div className="absolute inset-0 flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-all bg-gradient-to-t from-black/80 to-transparent">
                                         <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-2">{p.category}</span>
-                                        <h4 className="text-xl font-bold text-white mb-4">{p.title}</h4>
+                                        <h4 className="text-xl font-bold text-white mb-4 leading-tight">{p.title}</h4>
                                         <div className="flex items-center gap-2 text-[10px] font-black uppercase text-white/70">Abrir Galería <Icon name="maximize-2" className="w-3 h-3" /></div>
                                     </div>
                                 </div>
@@ -294,18 +331,28 @@
                         </div>
                     </section>
 
-                    {/* CERTIFICADOS */}
-                    <section className="container mx-auto px-6 py-24 border-y border-white/5">
+                    {/* CERTIFICADOS ACTUALIZADOS */}
+                    <section id="certificados" className="container mx-auto px-6 py-24 border-y border-white/5">
                         <div className="text-center mb-16">
                             <h2 className="text-[10px] text-blue-500 font-black uppercase tracking-[0.4em] mb-4 italic">Acreditaciones</h2>
                             <h3 className="text-4xl md:text-5xl font-black text-white mb-4">Certificaciones</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
                             {CERTIFICATES_DATA.map(cert => (
-                                <div key={cert.id} className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center text-center">
-                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6"><Icon name="award" /></div>
-                                    <h4 className="text-xl font-bold text-white mb-2">{cert.title}</h4>
-                                    <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{cert.issuer}</p>
+                                <div 
+                                    key={cert.id} 
+                                    onClick={() => setSelectedProject({ 
+                                        title: cert.title, 
+                                        category: 'Acreditación Profesional', 
+                                        media: [{ url: cert.url, label: cert.title }], 
+                                        description: cert.desc 
+                                    })}
+                                    className="glass-card p-10 rounded-[2.5rem] cursor-pointer hover:bg-white/5 flex flex-col items-center text-center group transition-all"
+                                >
+                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 mb-6 group-hover:rotate-12 transition-transform shadow-lg"><Icon name="award" className="w-8 h-8" /></div>
+                                    <h4 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-blue-400 transition-colors">{cert.title}</h4>
+                                    <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4 leading-none">{cert.issuer}</p>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase flex items-center gap-2 group-hover:text-white transition-colors">Ampliar Diploma <Icon name="zoom-in" className="w-3 h-3" /></span>
                                 </div>
                             ))}
                         </div>
@@ -317,24 +364,24 @@
                                 <div className="flex-1 text-center lg:text-left w-full">
                                     <h2 className="text-5xl md:text-7xl font-black text-white mb-10 tracking-tighter italic leading-none">Hablemos <br/>hoy</h2>
                                     <div className="grid grid-cols-1 gap-4 max-w-md mx-auto lg:mx-0 text-left">
-                                        <a href="mailto:alanalcudiaasencio@gmail.com" className="contact-btn group">
+                                        <a href="mailto:alanalcudiaasencio@gmail.com?subject=Consulta%20Ingeniería" className="contact-btn group">
                                             <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all"><Icon name="mail" /></div>
-                                            <div><p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">Email</p><p className="font-bold text-xs md:text-sm text-white">alanalcudiaasencio@gmail.com</p></div>
+                                            <div><p className="text-[9px] font-black text-slate-500 uppercase mb-0.5 leading-none">Email</p><p className="font-bold text-xs md:text-sm text-white break-all leading-tight">alanalcudiaasencio@gmail.com</p></div>
                                         </a>
                                         <a href="https://wa.me/529371085174" target="_blank" className="contact-btn group">
-                                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-green-500 group-hover:bg-green-600 group-hover:text-white transition-all"><Icon name="phone" /></div>
-                                            <div><p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">WhatsApp</p><p className="font-bold text-xs md:text-sm text-white">+52 937 108 5174</p></div>
+                                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-green-500 transition-all group-hover:bg-green-600 group-hover:text-white"><Icon name="phone" /></div>
+                                            <div><p className="text-[9px] font-black text-slate-500 uppercase mb-0.5 leading-none">WhatsApp</p><p className="font-bold text-xs md:text-sm text-white leading-tight">+52 937 108 5174</p></div>
                                         </a>
                                         <a href="https://www.linkedin.com/in/alanalcasc/" target="_blank" className="contact-btn group">
-                                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-700 group-hover:text-white transition-all"><Icon name="linkedin" /></div>
-                                            <div><p className="text-[9px] font-black text-slate-500 uppercase mb-0.5">LinkedIn</p><p className="font-bold text-xs md:text-sm text-white uppercase">alanalcasc</p></div>
+                                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400 transition-all group-hover:bg-blue-700 group-hover:text-white"><Icon name="linkedin" /></div>
+                                            <div><p className="text-[9px] font-black text-slate-500 uppercase mb-0.5 leading-none">LinkedIn</p><p className="font-bold text-xs md:text-sm text-white uppercase tracking-tight leading-tight">alanalcasc</p></div>
                                         </a>
                                     </div>
                                 </div>
                                 <div className="w-full max-w-[280px] sm:max-w-[320px] bg-[#fdfdfd] rounded-[2.5rem] p-10 text-slate-900 shadow-2xl md:rotate-3 hover:rotate-0 transition-all duration-700 border border-black/5 mx-auto">
                                     <div className="text-center">
                                         <div className="w-16 h-16 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-white shadow-lg"><span className="text-white font-black italic text-xl tracking-tighter">AA</span></div>
-                                        <h4 className="font-black text-xl uppercase tracking-tighter mb-1">Alan Alcudia</h4>
+                                        <h4 className="font-black text-xl uppercase tracking-tighter mb-1 leading-none">Alan Alcudia</h4>
                                         <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4">Ingeniero Mecatrónico</p>
                                         <div className="bg-white p-3 rounded-2xl border-4 border-blue-600 inline-block mb-4 shadow-sm"><img src={qrUrl} alt="QR" className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg" /></div>
                                         <p className="text-[10px] font-black text-slate-800 uppercase tracking-[0.1em]">Soluciones & Innovación</p>
